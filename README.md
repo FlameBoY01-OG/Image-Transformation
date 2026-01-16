@@ -58,9 +58,10 @@ The API will be available at `http://localhost:8000`
 4. Open the frontend:
 ```bash
 cd ../frontend
+python -m http.server 5500
 ```
 
-Open `index.html` in your browser or use a local server.
+The server will be available at http://localhost:5500
 
 ## Usage
 
@@ -149,3 +150,7 @@ Image-Transformation/
 ## License
 
 MIT
+
+## Acknowledgments
+
+Based on the paper "A Neural Algorithm of Artistic Style" by Gatys et al.
