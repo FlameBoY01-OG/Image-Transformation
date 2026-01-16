@@ -27,6 +27,7 @@ class ContentLoss(nn.Module):
         return input
     
 
+
 # Gram Matrix to calculate the correlation btw the feture maps
 def gram_matrix(input):
     a,b,c,d = input.size()
@@ -35,3 +36,15 @@ def gram_matrix(input):
     return g.div(a*b*c*d) # normalize
 
     
+class StyleLoss(nn.Module):
+    def __init__(self,target_feature):
+        super(StyleLoss,self).__init__()
+        self.target = gram_matrix(target_feature).detach()
+
+    def forword(self,input):
+        g = gram_matrix(input)
+        self.loss = nn.functional.mse_loss(g,self.target)
+        return input
+    
+class Normalization(nn.Module):
+    def __
