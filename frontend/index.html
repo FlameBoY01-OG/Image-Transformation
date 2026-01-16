@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroBrush</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>NeuroBrush</h1>
+            <p>Neural Style Transfer using VGG19</p>
+        </header>
+
+        <div class="upload-section">
+            <div class="card">
+                <h3>1. Content Image</h3>
+                <input type="file" id="contentImg" accept="image/*">
+                <div class="preview" id="contentPreview"></div>
+            </div>
+            
+            <div class="card">
+                <h3>2. Style Image</h3>
+                <input type="file" id="styleImg" accept="image/*">
+                <div class="preview" id="stylePreview"></div>
+            </div>
+        </div>
+
+        <button id="generateBtn" onclick="generateArt()">Paint It</button>
+        
+        <div id="loader" class="hidden">Thinking like an artist... (This takes ~30s)</div>
+
+        <div class="result-section" id="resultSection">
+            <h2>Masterpiece</h2>
+            <img id="resultImage" src="" alt="Generated Art">
+            <br>
+            <a id="downloadLink" href="#" download="masterpiece.jpg">Download</a>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

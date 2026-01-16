@@ -1,0 +1,83 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f0f2f5;
+    color: #1a1a1a;
+    text-align: center;
+    padding: 20px;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+h1 { color: #2d3436; margin-bottom: 5px;}
+
+.upload-section {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    width: 300px;
+    transition: transform 0.2s;
+}
+
+.card:hover { transform: translateY(-5px); }
+
+.preview img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    margin-top: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+button {
+    margin-top: 40px;
+    padding: 15px 40px;
+    background-color: #0984e3;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(9, 132, 227, 0.4);
+}
+
+button:hover { background-color: #74b9ff; transform: scale(1.05); }
+button:disabled { background-color: #b2bec3; cursor: not-allowed; transform: none; box-shadow: none;}
+
+.hidden { display: none; }
+
+#loader {
+    margin-top: 25px;
+    font-weight: 600;
+    color: #0984e3;
+}
+
+.result-section { display: none; margin-top: 40px; }
+
+.result-section img {
+    max-width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    border: 5px solid white;
+}
+
+#downloadLink {
+    display: inline-block;
+    margin-top: 15px;
+    color: #0984e3;
+    text-decoration: none;
+    font-weight: bold;
+}
