@@ -102,4 +102,62 @@ def get_style_model_and_losses(cnn,normalizatio_mean,normalization_std,style_img
         return model,style_losses,content_losses
     
 
+def run_style_transfer(content_bytes,style_bytes,num_steps=300,
+                       style_weight=1000000,content_wieght=1):
+    content_img = Image.open(io.BytesIO(content_bytes)).convert('RGB')
+    style_img = Image.open(io.BytesIO(style_bytes)).convert('RGB')
+
+    content_img = loader(content_img).unsqueeze(0).to(device,torch.float)
+    style_img = loader(style_img).unsqueeze(0).to(device,torch.float)
+
+    print("Loading the model...")
+    cnn = models.vgg19(pretrained=True).features.to(device).eval()
+    cnn_normalization_mean = torch.tensor([0.485,0.456,0.406]).to(device)
+    cnn_normalization_std = torch.tensor([0.229,0.224,0.225]).to(device)    
+
+    model, style_losses,content_losses = get_style_model_and_losses(cnn,cnn_normalization_mean,
+                                                                    cnn_normalization_std,style_img,content_img)
+    
+    input_img = content_img.clone()
+
+    optimizer = optim.LBFGS([input_img])
+    print("Optimizing...")
+
+    run = [0]
+    while run[0] <= num_steps:
+        def closure():
+            input_img.data.clamp_(0,1)
+
+            optimizer.zero_grad()
+            model(input_img)
+            style_score = 0
+            content_score = 0
+
+            for sl in style_losses:
+                style_score += sl.loss
+
+            for cl in content_losses:
+                content_score += cl.loss
+
+            style_score *= style_weight
+            content_score *= content_wieght
+
+            loss = style_score + content_score
+            loss.backward()
+
+            run[0] += 1
+            if run[0] % 50 == 0:
+                print(f"Step {run[0]}: Style Loss: {style_score.item():4f} Content Loss: {content_score.item():4f}")
+        
+            return style_score + content_score
+
+        optimizer.step(closure)
+
+    input_img.data.clamp_(0,1)
+
+    result_image = unloader(input_img.sequeeze(0).cpu())
+    img_byte_arr = io.BytesIO()
+    result_image.save(img_byte_arr, format='JPEG')
+    
+    return img_byte_arr.getvalue()
 
