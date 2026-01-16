@@ -3,39 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NeuroBrush</title>
+    <title>NeuroBrush - AI Art Studio</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header>
             <h1>NeuroBrush</h1>
-            <p>Neural Style Transfer using VGG19</p>
+            <p>Apply artistic styles to your photos</p>
         </header>
 
         <div class="upload-section">
             <div class="card">
-                <h3>1. Content Image</h3>
-                <input type="file" id="contentImg" accept="image/*">
-                <div class="preview" id="contentPreview"></div>
+                <h3>Content Image</h3>
+                <p class="hint">Upload your photo</p>
+                <div class="drop-zone" id="contentDropZone" data-target="content">
+                    <div class="drop-zone-inner">
+                        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                        </svg>
+                        <p class="drop-text">Drag & drop your image here</p>
+                        <p class="drop-text-or">or</p>
+                        <label class="file-button" for="contentImg">Browse Files</label>
+                        <input type="file" id="contentImg" accept="image/*" hidden>
+                    </div>
+                    <div class="preview" id="contentPreview"></div>
+                </div>
             </div>
             
             <div class="card">
-                <h3>2. Style Image</h3>
-                <input type="file" id="styleImg" accept="image/*">
-                <div class="preview" id="stylePreview"></div>
+                <h3>Style Image</h3>
+                <p class="hint">Choose an art style</p>
+                <div class="drop-zone" id="styleDropZone" data-target="style">
+                    <div class="drop-zone-inner">
+                        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                        </svg>
+                        <p class="drop-text">Drag & drop your style here</p>
+                        <p class="drop-text-or">or</p>
+                        <label class="file-button" for="styleImg">Browse Files</label>
+                        <input type="file" id="styleImg" accept="image/*" hidden>
+                    </div>
+                    <div class="preview" id="stylePreview"></div>
+                </div>
             </div>
         </div>
 
-        <button id="generateBtn" onclick="generateArt()">Paint It</button>
+        <button id="generateBtn" onclick="generateArt()">
+            Transform
+        </button>
         
-        <div id="loader" class="hidden">Thinking like an artist... (This takes ~30s)</div>
+        <div id="loader" class="hidden">
+            <div class="spinner"></div>
+            <p>Processing... this takes about 60 seconds</p>
+        </div>
 
         <div class="result-section" id="resultSection">
-            <h2>Masterpiece</h2>
-            <img id="resultImage" src="" alt="Generated Art">
-            <br>
-            <a id="downloadLink" href="#" download="masterpiece.jpg">Download</a>
+            <h2>Result</h2>
+            <div class="result-image-container">
+                <img id="resultImage" src="" alt="Generated Art">
+            </div>
+            <div class="result-actions">
+                <a id="downloadLink" href="#" download="styled-image.jpg" class="download-btn">
+                    Download
+                </a>
+                <button onclick="reset()" class="reset-btn">Try Another</button>
+            </div>
         </div>
     </div>
 

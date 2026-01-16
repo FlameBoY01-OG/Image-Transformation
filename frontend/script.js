@@ -1,72 +1,165 @@
-// 1. Handle Content Image Preview
-document.getElementById('contentImg').onchange = evt => {
-    const [file] = document.getElementById('contentImg').files
-    if (file) {
-        document.getElementById('contentPreview').innerHTML = `<img src="${URL.createObjectURL(file)}" />`
+let contentFile = null;
+let styleFile = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    setupFileInputs();
+    setupDragAndDrop();
+});
+
+function setupFileInputs() {
+    document.getElementById('contentImg').addEventListener('change', function(evt) {
+        const file = evt.target.files[0];
+        if (file) {
+            contentFile = file;
+            displayPreview(file, 'contentPreview', 'contentDropZone');
+        }
+    });
+
+    document.getElementById('styleImg').addEventListener('change', function(evt) {
+        const file = evt.target.files[0];
+        if (file) {
+            styleFile = file;
+            displayPreview(file, 'stylePreview', 'styleDropZone');
+        }
+    });
+}
+
+function setupDragAndDrop() {
+    const dropZones = document.querySelectorAll('.drop-zone');
+    
+    dropZones.forEach(zone => {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            zone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            zone.addEventListener(eventName, () => {
+                zone.classList.add('dragover');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            zone.addEventListener(eventName, () => {
+                zone.classList.remove('dragover');
+            }, false);
+        });
+
+        zone.addEventListener('drop', handleDrop, false);
+    });
+}
+
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+function handleDrop(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    
+    if (files.length > 0) {
+        const file = files[0];
+        
+        if (!file.type.startsWith('image/')) {
+            alert('Please drop an image file!');
+            return;
+        }
+        
+        const target = e.currentTarget.dataset.target;
+        
+        if (target === 'content') {
+            contentFile = file;
+            document.getElementById('contentImg').files = files;
+            displayPreview(file, 'contentPreview', 'contentDropZone');
+        } else if (target === 'style') {
+            styleFile = file;
+            document.getElementById('styleImg').files = files;
+            displayPreview(file, 'stylePreview', 'styleDropZone');
+        }
     }
 }
 
-// 2. Handle Style Image Preview
-document.getElementById('styleImg').onchange = evt => {
-    const [file] = document.getElementById('styleImg').files
-    if (file) {
-        document.getElementById('stylePreview').innerHTML = `<img src="${URL.createObjectURL(file)}" />`
-    }
+function displayPreview(file, previewId, dropZoneId) {
+    const preview = document.getElementById(previewId);
+    const dropZone = document.getElementById(dropZoneId);
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+        preview.classList.add('active');
+        dropZone.classList.add('has-image');
+    };
+    
+    reader.readAsDataURL(file);
 }
 
-// 3. The Main Function
 async function generateArt() {
-    const contentInput = document.getElementById('contentImg').files[0];
-    const styleInput = document.getElementById('styleImg').files[0];
     const btn = document.getElementById('generateBtn');
     const loader = document.getElementById('loader');
-    const resultImg = document.getElementById('resultImage');
     const resultSection = document.getElementById('resultSection');
 
-    // Validation
-    if (!contentInput || !styleInput) {
+    if (!contentFile || !styleFile) {
         alert("Please upload both images first!");
         return;
     }
 
-    // Lock UI while processing
     btn.disabled = true;
-    btn.innerText = "Painting...";
+    btn.textContent = 'Processing...';
     loader.classList.remove('hidden');
     resultSection.style.display = 'none';
 
-    // Prepare data for upload
     const formData = new FormData();
-    formData.append('content', contentInput);
-    formData.append('style', styleInput);
+    formData.append('content', contentFile);
+    formData.append('style', styleFile);
 
     try {
-        // Send to Backend
-        // Note: We use 'localhost:8000' because that is where Python is listening
         const response = await fetch('http://localhost:8000/transform', {
             method: 'POST',
             body: formData
         });
 
         if (response.ok) {
-            // Convert response to an image URL
             const blob = await response.blob();
             const imageUrl = URL.createObjectURL(blob);
             
-            // Display Result
+            const resultImg = document.getElementById('resultImage');
             resultImg.src = imageUrl;
             document.getElementById('downloadLink').href = imageUrl;
             resultSection.style.display = 'block';
+            
+            resultSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
         } else {
-            alert("Server Error: Something went wrong with the style transfer.");
+            const errorText = await response.text();
+            console.error('Server error:', errorText);
+            alert("Server Error: Something went wrong with the style transfer. Check console for details.");
         }
     } catch (error) {
-        console.error(error);
-        alert("Connection Failed: Is the Python backend running?");
+        console.error('Connection error:', error);
+        alert("Connection Failed: Make sure the Python backend is running on port 8000.");
     } finally {
-        // Unlock UI
         btn.disabled = false;
-        btn.innerText = "Paint It";
+        btn.textContent = 'Transform';
         loader.classList.add('hidden');
     }
+}
+
+function reset() {
+    contentFile = null;
+    styleFile = null;
+    
+    document.getElementById('contentImg').value = '';
+    document.getElementById('styleImg').value = '';
+    
+    document.getElementById('contentPreview').innerHTML = '';
+    document.getElementById('contentPreview').classList.remove('active');
+    document.getElementById('contentDropZone').classList.remove('has-image');
+    
+    document.getElementById('stylePreview').innerHTML = '';
+    document.getElementById('stylePreview').classList.remove('active');
+    document.getElementById('styleDropZone').classList.remove('has-image');
+    
+    document.getElementById('resultSection').style.display = 'none';
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
